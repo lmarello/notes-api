@@ -10,7 +10,6 @@ const Tracing = require('@sentry/tracing')
 const notFound = require('./middlewares/notFound')
 const handleErrors = require('./middlewares/handleErrors')
 
-const PORT = process.env.PORT || 3001
 const app = express()
 
 app.use(express.json())
@@ -84,13 +83,14 @@ app.put('/api/notes/:id', (request, response, next) => {
 app.post('/api/notes', (request, response) => {
   const { content, important } = request.body
 
-  if (!content)
-    response
+  if (!content) {
+    return response
       .status(400)
       .json({
         error: 'Parameters missing',
       })
       .end()
+  }
 
   const note = new Note({
     content: content,
@@ -115,6 +115,4 @@ app.use(Sentry.Handlers.errorHandler())
 
 app.use(handleErrors)
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+module.exports = app
