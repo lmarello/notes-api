@@ -1,14 +1,16 @@
 const usersRouter = require('express').Router()
 const User = require('../models/User')
+const { hashPassword } = require('../services/auth')
 
-usersRouter.post('/', (request, response) => {
+usersRouter.post('/', async (request, response) => {
   const { body } = request
   const { username, name, password } = body
+  const passwordHash = await hashPassword(password)
 
   const user = new User({
     username,
     name,
-    passwordHash: password,
+    passwordHash,
   })
 
   user

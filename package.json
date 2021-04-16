@@ -7,7 +7,7 @@
     "dev": "cross-env NODE_ENV=development nodemon server.js",
     "lint": "npm run lint",
     "start": "cross-env NODE_ENV=production node server.js",
-    "test": "cross-env NODE_ENV=test jest --verbose --silent --detectOpenHandles",
+    "test": "cross-env NODE_ENV=test PORT=3002 jest --verbose --silent --detectOpenHandles",
     "test:watch": "npm run test -- --watch"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
   "dependencies": {
     "@sentry/node": "^6.2.5",
     "@sentry/tracing": "^6.2.5",
+    "bcrypt": "^5.0.1",
     "cors": "2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "8.2.0",
