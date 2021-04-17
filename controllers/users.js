@@ -2,6 +2,15 @@ const usersRouter = require('express').Router()
 const User = require('../models/User')
 const { hashPassword } = require('../services/auth')
 
+usersRouter.get('/', async (request, response) => {
+  const users = await User.find({}).populate('notes', {
+    content: 1,
+    date: 1,
+    important: 1,
+  })
+  response.json(users)
+})
+
 usersRouter.post('/', async (request, response) => {
   const { body } = request
   const { username, name, password } = body
@@ -20,7 +29,7 @@ usersRouter.post('/', async (request, response) => {
     })
     .catch((err) => {
       console.log(err)
-      response.status(404).end()
+      response.status(404).json({ error: 'Error al crear el usuario' })
     })
 })
 

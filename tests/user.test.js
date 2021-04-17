@@ -42,6 +42,27 @@ describe('Users', () => {
 
     expect(foundUser.username).toBe(createdUser.username)
   })
+
+  test('create user with existing name', async () => {
+    const userAtStart = await getUsersFromDB()
+
+    const user = {
+      username: 'usertest',
+      name: 'lnametest',
+      password: 'mi_password',
+    }
+
+    const result = await api
+      .post('/api/users')
+      .send(user)
+      .expect(404)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.error).toContain('Error al crear el usuario')
+
+    const usersAtEnd = await getUsersFromDB()
+    expect(usersAtEnd).toHaveLength(userAtStart.length)
+  })
 })
 
 afterAll(async () => {

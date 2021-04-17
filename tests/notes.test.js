@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const Note = require('../models/Note')
-
+const User = require('../models/User')
+const { hashPassword } = require('../services/auth')
 const { api, getAllNotes, initialNotes } = require('./helpers')
 
 beforeEach(async (done) => {
@@ -8,6 +9,20 @@ beforeEach(async (done) => {
   const notes = initialNotes.map((note) => new Note(note))
   const promises = notes.map((note) => note.save())
   await Promise.all(promises)
+
+  await User.deleteMany({})
+  const passwordHash = await hashPassword('password')
+  const username = 'usertest'
+  const name = 'nametest'
+
+  const user = new User({
+    username,
+    name,
+    passwordHash,
+  })
+
+  const zz = await user.save()
+  console.log(zz)
   done()
 })
 
@@ -38,6 +53,7 @@ describe('Notes', () => {
       const newNote = {
         content: 'New Note',
         important: false,
+        user: '60763c51ebc72d6bd55e2062',
       }
 
       await api

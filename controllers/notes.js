@@ -1,13 +1,10 @@
 const notesRouter = require('express').Router()
 const Note = require('../models/Note')
+const User = require('../models/User')
 
-notesRouter.get('/', (request, response) => {
-  Note.find({})
-    .then((notes) => response.json(notes))
-    .catch((err) => {
-      console.log(err)
-      response.status(404).end()
-    })
+notesRouter.get('/', async (request, response) => {
+  const notes = await Note.find({}).populate('user', { username: 1, name: 1 })
+  response.json(notes)
 })
 
 notesRouter.get('/:id', (request, response, next) => {
@@ -46,8 +43,9 @@ notesRouter.put('/:id', (request, response, next) => {
     .catch(next)
 })
 
-notesRouter.post('/', (request, response) => {
-  const { content, important } = request.body
+notesRouter.post('/', async (request, response) => {
+  const { content, important = false, userId } = request.body
+  const user = await User.findById(userId)
 
   if (!content) {
     return response
@@ -62,17 +60,17 @@ notesRouter.post('/', (request, response) => {
     content: content,
     important: typeof important !== 'undefined' ? important : false,
     date: new Date(),
+    user: user._id,
   })
 
-  note
-    .save()
-    .then((savedNote) => {
-      response.status(201).json(savedNote)
-    })
-    .catch((err) => {
-      console.log(err)
-      response.status(404).end()
-    })
+  try {
+    const savedNote = await note.save()
+    user.notes = user.notes.concat(savedNote._id)
+    await user.save()
+    response.status(201).json(savedNote)
+  } catch (error) {
+    response.status(404).end()
+  }
 })
 
 module.exports = notesRouter
